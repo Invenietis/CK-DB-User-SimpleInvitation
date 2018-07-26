@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CK.DB.Actor" Version="2.0.1-p" />
+    <PackageReference Include="CK.DB.Actor" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
