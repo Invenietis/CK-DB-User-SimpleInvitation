@@ -8,6 +8,16 @@ using System.Threading.Tasks;
 
 namespace CK.DB.User.SimpleInvitation
 {
+    static class HHHH
+    {
+        public static T Create2<T>( this IPocoFactory<T> f,  Action<T> configurator ) where T : IPoco
+        {
+            object o = f.Create();
+            configurator( (T)o );
+            return (T)o;
+        }
+    }
+
     /// <summary>
     /// The tUserSimpleInvitation table contains user invitations.
     /// </summary>
@@ -15,6 +25,30 @@ namespace CK.DB.User.SimpleInvitation
     [Versions( "1.0.0" )]
     public abstract partial class UserSimpleInvitationTable : SqlTable
     {
+        IPocoFactory<IUserSimpleInvitationInfo> _infoFactory;
+
+        void StObjConstruct( IPocoFactory<IUserSimpleInvitationInfo> infoFactory )
+        {
+            _infoFactory = infoFactory;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="IUserSimpleInvitationInfo"/> poco.
+        /// </summary>
+        /// <returns>A new poco instance.</returns>
+        public IUserSimpleInvitationInfo CreateInfo() => _infoFactory.Create();
+
+        /// <summary>
+        /// Creates and configure a new <see cref="IUserSimpleInvitationInfo"/> poco.
+        /// </summary>
+        /// <typeparam name="T">The actual poco type to create.</typeparam>
+        /// <param name="configurator">Configuration function.</param>
+        /// <returns>A new configured poco instance.</returns>
+        public T CreateInfo<T>( Action<T> configurator ) where T : IUserSimpleInvitationInfo
+        {
+            return ((IPocoFactory<T>)_infoFactory).Create( configurator );
+        }
+
         /// <summary>
         /// Captures the result of <see cref="Create"/> or <see cref="CreateAsync"/> calls.
         /// </summary>
@@ -83,15 +117,12 @@ namespace CK.DB.User.SimpleInvitation
         /// Creates a new invitation.
         /// </summary>
         /// <param name="ctx">The call context to use.</param>
-        /// <param name="actorId">The current actor identifier.</param>
-        /// <param name="senderId">The user that sends the invitation.</param>
-        /// <param name="email">The email of the invited user.</param>
-        /// <param name="expirationDateUtc">The expiration date. Must be later than now otherwise an exception is thrown.</param>
+        /// <param name="actorId">The current actor identifier (becomes the sender of the invitation).</param>
+        /// <param name="info">Invitation information.</param>
         /// <param name="firstInvitationSent">True if an initial invitation mail has already been sent, prior to the invitation creation.</param>
-        /// <param name="options">Optional payload that may contain invitation specific data.</param>
         /// <returns>The <see cref="CreateResult"/> with the invitation identifier and token to use.</returns>
         [SqlProcedure( "sUserSimpleInvitationCreate" )]
-        public abstract Task<CreateResult> CreateAsync( ISqlCallContext ctx, int actorId, int senderId, string email, DateTime expirationDateUtc, bool firstInvitationSent = false, byte[] options = null );
+        public abstract Task<CreateResult> CreateAsync( ISqlCallContext ctx, int actorId, [ParameterSource]IUserSimpleInvitationInfo info, bool firstInvitationSent = false );
 
         /// <summary>
         /// Starts a response to an invitation.
@@ -99,9 +130,9 @@ namespace CK.DB.User.SimpleInvitation
         /// <param name="ctx">The call context to use.</param>
         /// <param name="actorId">The current actor identifier.</param>
         /// <param name="invitationToken">The invitation token.</param>
-        /// <returns>The <see cref="StartResponseResult"/> with the invitation identifier and options if any.</returns>
+        /// <returns>The <see cref="IUserSimpleInvitationInfo"/>.</returns>
         [SqlProcedure( "sUserSimpleInvitationStartResponse" )]
-        public abstract Task<StartResponseResult> StartResponseAsync( ISqlCallContext ctx, int actorId, string invitationToken );
+        public abstract Task<IUserSimpleInvitationInfo> StartResponseAsync( ISqlCallContext ctx, int actorId, string invitationToken );
 
         /// <summary>
         /// Destroys an existing invitation either because it succeeded or it must be canceled.

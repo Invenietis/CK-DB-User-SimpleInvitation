@@ -9,18 +9,18 @@
 create procedure CK.sUserSimpleInvitationCreate
 (
 	@ActorId int,
-	@SenderId int,
     @EMail nvarchar(255),
 	@ExpirationDateUtc datetime2(2),
-    @FirstInvitationSent bit = 0,
     @Options varbinary(max) = null,
+    @FirstInvitationSent bit = 0,
 	@InvitationIdResult int output,
 	@InvitationTokenResult varchar(128) output
 )
 as
 begin
+    declare @Now datetime2(2) = sysutcdatetime();
     if @ActorId <= 0 throw 50000, 'Security.AnonymousNotAllowed', 1;
-    if @ExpirationDateUtc is null or @ExpirationDateUtc <= sysutcdatetime() throw 50000, 'Argument.InvalidExpirationDateUtc', 1;
+    if @ExpirationDateUtc is null or @ExpirationDateUtc <= @Now throw 50000, 'Argument.InvalidExpirationDateUtc', 1;
 
     --[beginsp]
 
@@ -32,18 +32,17 @@ begin
         if @FirstInvitationSent = 1
         begin
             set @InvitationSendCount = 1;
-            set @LastInvitationSendDate = sysutcdatetime();
+            set @LastInvitationSendDate = @Now;
         end
 
 	    --<PreCreate revert />
 
-	    insert into CK.tUserSimpleInvitation( SenderId, EMail, ExpirationDate, InvitationSendCount, LastInvitationSendDate, Options )
-            values( @SenderId, @EMail, @ExpirationDateUtc, @InvitationSendCount, @LastInvitationSendDate, @Options );
+	    insert into CK.tUserSimpleInvitation( CreatedById, EMail, ExpirationDateUtc, InvitationSendCount, LastInvitationSendDate, Options )
+            values( @ActorId, @EMail, @ExpirationDateUtc, @InvitationSendCount, @LastInvitationSendDate, @Options );
 	    set @InvitationIdResult = SCOPE_IDENTITY();
         select @InvitationTokenResult = InvitationToken from CK.tUserSimpleInvitation where InvitationId = @InvitationIdResult; 
 
         --<PostCreate />
-
     end
     else
     begin
