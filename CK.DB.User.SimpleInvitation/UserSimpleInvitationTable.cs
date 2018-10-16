@@ -8,16 +8,6 @@ using System.Threading.Tasks;
 
 namespace CK.DB.User.SimpleInvitation
 {
-    static class HHHH
-    {
-        public static T Create2<T>( this IPocoFactory<T> f,  Action<T> configurator ) where T : IPoco
-        {
-            object o = f.Create();
-            configurator( (T)o );
-            return (T)o;
-        }
-    }
-
     /// <summary>
     /// The tUserSimpleInvitation table contains user invitations.
     /// </summary>
