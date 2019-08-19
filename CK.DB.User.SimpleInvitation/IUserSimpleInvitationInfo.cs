@@ -3,6 +3,9 @@ using System;
 
 namespace CK.DB.User.SimpleInvitation
 {
+    /// <summary>
+    /// Base model of an invitation.
+    /// </summary>
     public interface IUserSimpleInvitationInfo : IPoco
     {
         /// <summary>
