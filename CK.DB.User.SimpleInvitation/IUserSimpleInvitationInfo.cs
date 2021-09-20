@@ -10,15 +10,15 @@ namespace CK.DB.User.SimpleInvitation
     {
         /// <summary>
         /// Gets the invitation identifier.
-        /// This property can only be read from the database.
+        /// This property should only be read from the database.
         /// </summary>
-        int InvitationId { get; }
+        int InvitationId { get; set; }
 
         /// <summary>
         /// Gets the invitation token to use.
-        /// This property can only be read from the database.
+        /// This property should only be read from the database.
         /// </summary>
-        string InvitationToken { get; }
+        string InvitationToken { get; set; }
 
         /// <summary>
         /// The email of the invited user.
@@ -33,16 +33,16 @@ namespace CK.DB.User.SimpleInvitation
 
         /// <summary>
         /// Gets the number of invitation sent so far.
-        /// This property can only be read from the database.
+        /// This property should only be read from the database.
         /// </summary>
-        int InvitationSendCount { get; }
+        int InvitationSendCount { get; set; }
 
         /// <summary>
         /// Gets the last time (Utc) this invitation has been sent.
         /// Defaults to <see cref="Util.UtcMinValue"/>.
-        /// This property can only be read from the database.
+        /// This property should only be read from the database.
         /// </summary>
-        DateTime LastInvitationSendDate { get; }
+        DateTime LastInvitationSendDate { get; set; }
 
         /// <summary>
         /// Gets or sets an optional binary options that may
