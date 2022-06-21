@@ -34,7 +34,7 @@ namespace CK.DB.User.SimpleInvitation.Tests
                 if( firstInvitationSent )
                 {
                     rs.InvitationSendCount.Should().Be( 1 );
-                    rs.LastInvitationSendDate.Should().BeCloseTo( DateTime.UtcNow, 500 );
+                    rs.LastInvitationSendDate.Should().BeCloseTo( DateTime.UtcNow, TimeSpan.FromMilliseconds( 500 ) );
                 }
                 else
                 {
