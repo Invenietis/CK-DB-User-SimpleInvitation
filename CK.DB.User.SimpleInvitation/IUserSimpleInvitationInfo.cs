@@ -24,7 +24,7 @@ namespace CK.DB.User.SimpleInvitation
         /// The email of the invited user.
         /// This is the key for an invitation: only one invitation can exist by EMail.
         /// </summary>
-        string EMail { get; set; }
+        string? EMail { get; set; }
 
         /// <summary>
         /// The expiration date. Must always be in the future.
@@ -48,7 +48,7 @@ namespace CK.DB.User.SimpleInvitation
         /// Gets or sets an optional binary options that may
         /// contain invitation specific data
         /// </summary>
-        byte[] Options { get; set; }
+        byte[]? Options { get; set; }
 
     }
 }
