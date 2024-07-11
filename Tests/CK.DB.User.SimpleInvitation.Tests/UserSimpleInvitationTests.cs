@@ -5,7 +5,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using static CK.Testing.DBSetupTestHelper;
+using static CK.Testing.MonitorTestHelper;
 
 namespace CK.DB.User.SimpleInvitation.Tests
 {
@@ -17,7 +17,7 @@ namespace CK.DB.User.SimpleInvitation.Tests
         [TestCase( false )]
         public void creating_starting_and_destroying_an_invitation( bool firstInvitationSent )
         {
-            var inv = TestHelper.StObjMap.StObjs.Obtain<UserSimpleInvitationTable>();
+            var inv = SharedEngine.Map.StObjs.Obtain<UserSimpleInvitationTable>();
             using( var ctx = new SqlStandardCallContext() )
             {
                 var info = inv.CreateInfo();
@@ -48,7 +48,7 @@ namespace CK.DB.User.SimpleInvitation.Tests
         [Test]
         public void creating_an_invitation_to_an_existing_mail_fails()
         {
-            var inv = TestHelper.StObjMap.StObjs.Obtain<UserSimpleInvitationTable>();
+            var inv = SharedEngine.Map.StObjs.Obtain<UserSimpleInvitationTable>();
             using( var ctx = new SqlStandardCallContext() )
             {
                 var info = inv.CreateInfo();
@@ -65,7 +65,7 @@ namespace CK.DB.User.SimpleInvitation.Tests
         [Test]
         public void unexisting_invitation_token_does_not_start_an_invitation()
         {
-            var inv = TestHelper.StObjMap.StObjs.Obtain<UserSimpleInvitationTable>();
+            var inv = SharedEngine.Map.StObjs.Obtain<UserSimpleInvitationTable>();
             using( var ctx = new SqlStandardCallContext() )
             {
                 string token = $"3712.{Guid.NewGuid().ToString()}";
@@ -81,7 +81,7 @@ namespace CK.DB.User.SimpleInvitation.Tests
         [Test]
         public void invalid_invitation_token_raises_an_exception()
         {
-            var inv = TestHelper.StObjMap.StObjs.Obtain<UserSimpleInvitationTable>();
+            var inv = SharedEngine.Map.StObjs.Obtain<UserSimpleInvitationTable>();
             using( var ctx = new SqlStandardCallContext() )
             {
                 string token = $"This is not.A valid token";
@@ -92,7 +92,7 @@ namespace CK.DB.User.SimpleInvitation.Tests
         [Test]
         public void invitation_expiration_is_boosted_by_at_least_5_minutes_when_invitation_starts()
         {
-            var inv = TestHelper.StObjMap.StObjs.Obtain<UserSimpleInvitationTable>();
+            var inv = SharedEngine.Map.StObjs.Obtain<UserSimpleInvitationTable>();
             using( var ctx = new SqlStandardCallContext() )
             {
                 var info = inv.CreateInfo();
@@ -111,7 +111,7 @@ namespace CK.DB.User.SimpleInvitation.Tests
         [Test]
         public async Task invitation_expiration()
         {
-            var inv = TestHelper.StObjMap.StObjs.Obtain<UserSimpleInvitationTable>();
+            var inv = SharedEngine.Map.StObjs.Obtain<UserSimpleInvitationTable>();
             using( var ctx = new SqlStandardCallContext() )
             {
                 var info = inv.CreateInfo();
