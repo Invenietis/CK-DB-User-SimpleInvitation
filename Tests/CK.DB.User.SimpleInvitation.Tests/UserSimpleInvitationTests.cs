@@ -1,7 +1,7 @@
 using CK.Core;
 using CK.SqlServer;
 using CK.Testing;
-using FluentAssertions;
+using Shouldly;
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
@@ -24,22 +24,22 @@ public class UserSimpleInvitationTests
             info.EMail = Guid.NewGuid().ToString( "N" ) + "@abc.com";
             info.ExpirationDateUtc = DateTime.UtcNow.AddHours( 1 );
             var r = inv.Create( ctx, 1, info, firstInvitationSent );
-            r.Success.Should().BeTrue();
-            r.InvitationId.Should().BeGreaterThan( 0 );
-            r.InvitationToken.Should().NotBeEmpty();
+            r.Success.ShouldBeTrue();
+            r.InvitationId.ShouldBeGreaterThan( 0 );
+            r.InvitationToken.ShouldNotBeEmpty();
             var rs = inv.StartResponse( ctx, 1, r.InvitationToken );
-            rs.IsValid().Should().BeTrue();
-            rs.InvitationId.Should().Be( r.InvitationId );
-            rs.Options.Should().BeNull();
+            rs.IsValid().ShouldBeTrue();
+            rs.InvitationId.ShouldBe( r.InvitationId );
+            rs.Options.ShouldBeNull();
             if( firstInvitationSent )
             {
-                rs.InvitationSendCount.Should().Be( 1 );
-                rs.LastInvitationSendDate.Should().BeCloseTo( DateTime.UtcNow, TimeSpan.FromMilliseconds( 500 ) );
+                rs.InvitationSendCount.ShouldBe( 1 );
+                rs.LastInvitationSendDate.ShouldBe( DateTime.UtcNow, tolerance: TimeSpan.FromMilliseconds( 500 ) );
             }
             else
             {
-                rs.InvitationSendCount.Should().Be( 0 );
-                rs.LastInvitationSendDate.Should().Be( Util.UtcMinValue );
+                rs.InvitationSendCount.ShouldBe( 0 );
+                rs.LastInvitationSendDate.ShouldBe( Util.UtcMinValue );
             }
             inv.Destroy( ctx, 1, r.InvitationId );
         }
@@ -55,10 +55,10 @@ public class UserSimpleInvitationTests
             info.EMail = Guid.NewGuid().ToString( "N" ) + "@abc.com";
             info.ExpirationDateUtc = DateTime.UtcNow.AddHours( 1 );
             var r1 = inv.Create( ctx, 1, info );
-            r1.Success.Should().BeTrue();
+            r1.Success.ShouldBeTrue();
 
             var r2 = inv.Create( ctx, 1, info );
-            r2.Success.Should().BeFalse();
+            r2.Success.ShouldBeFalse();
         }
     }
 
@@ -70,11 +70,11 @@ public class UserSimpleInvitationTests
         {
             string token = $"3712.{Guid.NewGuid()}";
             var rs = inv.StartResponse( ctx, 1, token );
-            rs.InvitationId.Should().Be( 0 );
-            rs.ExpirationDateUtc.Should().Be( Util.UtcMinValue );
-            rs.EMail.Should().BeNull();
-            rs.InvitationToken.Should().Be( token );
-            rs.Options.Should().BeNull();
+            rs.InvitationId.ShouldBe( 0 );
+            rs.ExpirationDateUtc.ShouldBe( Util.UtcMinValue );
+            rs.EMail.ShouldBeNull();
+            rs.InvitationToken.ShouldBe( token );
+            rs.Options.ShouldBeNull();
         }
     }
 
@@ -85,7 +85,7 @@ public class UserSimpleInvitationTests
         using( var ctx = new SqlStandardCallContext( TestHelper.Monitor ) )
         {
             string token = $"This is not.A valid token";
-            inv.Invoking( sut => sut.StartResponse( ctx, 1, token ) ).Should().Throw<SqlDetailedException>();
+            Util.Invokable( () => inv.StartResponse( ctx, 1, token ) ).ShouldThrow<SqlDetailedException>();
         }
     }
 
@@ -99,12 +99,12 @@ public class UserSimpleInvitationTests
             info.EMail = Guid.NewGuid().ToString( "N" ) + "@abc.com";
             info.ExpirationDateUtc = DateTime.UtcNow.AddMinutes( 2 );
             var r1 = inv.Create( ctx, 1, info );
-            r1.Success.Should().BeTrue();
+            r1.Success.ShouldBeTrue();
 
             var boosted = info.ExpirationDateUtc.AddMinutes( 5 );
             var startInfo = inv.StartResponse( ctx, 1, r1.InvitationToken );
-            startInfo.InvitationId.Should().BeGreaterThan( 0 );
-            boosted.Should().BeBefore( startInfo.ExpirationDateUtc );
+            startInfo.InvitationId.ShouldBeGreaterThan( 0 );
+            boosted.ShouldBeLessThan( startInfo.ExpirationDateUtc );
         }
     }
 
@@ -118,11 +118,11 @@ public class UserSimpleInvitationTests
             info.EMail = Guid.NewGuid().ToString( "N" ) + "@abc.com";
             info.ExpirationDateUtc = DateTime.UtcNow.AddMilliseconds( 500 );
             var r1 = await inv.CreateAsync( ctx, 1, info );
-            r1.Success.Should().BeTrue();
+            r1.Success.ShouldBeTrue();
 
             await Task.Delay( 550 );
             var startInfo = await inv.StartResponseAsync( ctx, 1, r1.InvitationToken );
-            startInfo.IsValid().Should().BeFalse();
+            startInfo.IsValid().ShouldBeFalse();
         }
     }
 
